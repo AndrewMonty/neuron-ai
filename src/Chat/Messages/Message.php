@@ -2,6 +2,7 @@
 
 namespace NeuronAI\Chat\Messages;
 
+use NeuronAI\Chat\Annotations\Annotation;
 use NeuronAI\Chat\Attachments\Attachment;
 use NeuronAI\Chat\Enums\MessageRole;
 
@@ -9,6 +10,7 @@ class Message implements \JsonSerializable
 {
     protected ?Usage $usage = null;
     protected array $attachments = [];
+    protected array $annotations = [];
 
     protected array $meta = [];
 
@@ -44,6 +46,17 @@ class Message implements \JsonSerializable
         return $this;
     }
 
+    public function addAnnotation(Annotation $annotation): Message
+    {
+        $this->annotations[] = $annotation;
+        return $this;
+    }
+
+    public function getAnnotations(): array
+    {
+        return $this->annotations ?? [];
+    }
+
     /**
      * @return array<Attachment>
      */
@@ -69,6 +82,11 @@ class Message implements \JsonSerializable
         return $this;
     }
 
+    public function getMetadata(?string $key): string|array|null
+    {
+        return isset($key) ? $this->meta[$key] : $this->meta;
+    }
+
     public function addMetadata(string $key, string|array|null $value): Message
     {
         $this->meta[$key] = $value;
@@ -88,6 +106,10 @@ class Message implements \JsonSerializable
 
         if (!empty($this->getAttachments())) {
             $data['attachments'] = \array_map(fn (Attachment $attachment) => $attachment->jsonSerialize(), $this->getAttachments());
+        }
+
+        if (!empty($this->getAnnotations())) {
+            $data['annotations'] = \array_map(fn (Annotation $annotation) => $annotation->jsonSerialize(), $this->getAnnotations());
         }
 
         return \array_merge($this->meta, $data);

@@ -19,6 +19,7 @@ class OpenAI implements AIProviderInterface
     use HandleChat;
     use HandleStream;
     use HandleStructured;
+    use HandleResponses;
 
     /**
      * The main URL of the provider API.
@@ -48,7 +49,7 @@ class OpenAI implements AIProviderInterface
         protected array $parameters = [],
     ) {
         $this->client = new Client([
-            'base_uri' => trim($this->baseUri, '/').'/',
+            'base_uri' => trim($this->baseUri, '/') . '/',
             'headers' => [
                 'Accept' => 'application/json',
                 'Content-Type' => 'application/json',
@@ -73,7 +74,12 @@ class OpenAI implements AIProviderInterface
 
     protected function generateToolsPayload(): array
     {
-        return \array_map(function (ToolInterface $tool) {
+        return \array_map(function (ToolInterface|string $tool) {
+            // for platform tools like 'web_search_preview'
+            if (is_string($tool)) {
+                return ['type' => $tool];
+            }
+
             $payload = [
                 'type' => 'function',
                 'function' => [

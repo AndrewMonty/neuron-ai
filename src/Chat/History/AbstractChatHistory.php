@@ -2,6 +2,7 @@
 
 namespace NeuronAI\Chat\History;
 
+use NeuronAI\Chat\Annotations\Annotation;
 use NeuronAI\Chat\Attachments\Document;
 use NeuronAI\Chat\Attachments\Image;
 use NeuronAI\Chat\Enums\AttachmentContentType;
@@ -199,6 +200,19 @@ abstract class AbstractChatHistory implements ChatHistoryInterface
                             break;
                     }
 
+                }
+                continue;
+            }
+            if ($key === 'annotations') {
+                foreach ($message['annotations'] as $annotation) {
+                    $item->addAnnotation(
+                        new Annotation(
+                            url: $annotation['url'],
+                            title: $annotation['title'],
+                            startIndex: $annotation['start_index'] ?? null,
+                            endIndex: $annotation['end_index'] ?? null,
+                        )
+                    );
                 }
                 continue;
             }

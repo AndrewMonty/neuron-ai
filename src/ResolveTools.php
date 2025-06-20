@@ -100,13 +100,13 @@ trait ResolveTools
      * @return AgentInterface
      * @throws AgentException
      */
-    public function addTool(ToolInterface|ToolkitInterface|array $tools): AgentInterface
+    public function addTool(ToolInterface|ToolkitInterface|array|string $tools): AgentInterface
     {
         $tools = \is_array($tools) ? $tools : [$tools];
 
         foreach ($tools as $t) {
-            if (! $t instanceof ToolInterface && ! $t instanceof ToolkitInterface) {
-                throw new AgentException('Tools must be an instance of ToolInterface or ToolkitInterface');
+            if (! $t instanceof ToolInterface && ! $t instanceof ToolkitInterface && ! is_string($t)) {
+                throw new AgentException('Tools must be a string or an instance of ToolInterface or ToolkitInterface');
             }
             $this->tools[] = $t;
         }

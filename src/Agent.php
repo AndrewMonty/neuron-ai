@@ -17,6 +17,7 @@ class Agent implements AgentInterface
     use ResolveChatHistory;
     use HandleChat;
     use HandleStream;
+    use HandleResponses;
     use HandleStructured;
     use Observable;
 

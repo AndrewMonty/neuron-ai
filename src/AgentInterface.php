@@ -19,7 +19,7 @@ interface AgentInterface extends \SplSubject
 
     public function instructions(): string;
 
-    public function addTool(ToolInterface|ToolkitInterface|array $tools): AgentInterface;
+    public function addTool(ToolInterface|ToolkitInterface|array|string $tools): AgentInterface;
 
     public function getTools(): array;
 
