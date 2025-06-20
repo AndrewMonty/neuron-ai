@@ -69,6 +69,7 @@ trait HandleResponses
                     $response = $this->createToolCallMessage($functions);
                 } else {
                     $content = $messages[0]['content'][0];
+
                     $response = new AssistantMessage(
                         content: $content['text'],
                     );
