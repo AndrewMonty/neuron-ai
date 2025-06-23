@@ -42,6 +42,14 @@ class MessageMapper implements MessageMapperInterface
             unset($payload['usage']);
         }
 
+        if (\array_key_exists('annotations', $payload)) {
+            unset($payload['annotations']);
+        }
+
+        if (\array_key_exists('metadata', $payload)) {
+            unset($payload['metadata']);
+        }
+
         $attachments = $message->getAttachments();
 
         if (is_string($payload['content']) && $attachments) {
