@@ -40,18 +40,9 @@ trait HandleResponsesStream
                     }
                 );
 
-            $content = '';
-            $usage = new Usage(0, 0);
-            $response = null;
+            $message = null;
 
             foreach ($stream as $chunk) {
-                // Catch usage when streaming
-                if (\is_array($chunk) && \array_key_exists('usage', $chunk)) {
-                    $usage->inputTokens += $chunk['usage']['input_tokens'] ?? 0;
-                    $usage->outputTokens += $chunk['usage']['output_tokens'] ?? 0;
-                    continue;
-                }
-
                 // Status of platform tool call progress like web search
                 if (\is_array($chunk) && \array_key_exists('status', $chunk)) {
                     yield $chunk;
@@ -63,24 +54,15 @@ trait HandleResponsesStream
                     continue;
                 }
 
-                $content .= $chunk;
-
                 yield $chunk;
-            }
-
-            // If completed message is not provided, infer from streamed text content
-            if (!$message) {
-                $response = new AssistantMessage($content);
-                $response->setUsage($usage);
-                \Log::info($response->getContent());
             }
 
             // Avoid double saving due to the recursive call.
             $last = $this->resolveChatHistory()->getLastMessage();
-            if ($response->getRole() !== $last->getRole()) {
-                $this->notify('message-saving', new MessageSaving($response));
-                $this->resolveChatHistory()->addMessage($response);
-                $this->notify('message-saved', new MessageSaved($response));
+            if ($message->getRole() !== $last->getRole()) {
+                $this->notify('message-saving', new MessageSaving($message));
+                $this->resolveChatHistory()->addMessage($message);
+                $this->notify('message-saved', new MessageSaved($message));
             }
 
             $this->notify('stream-stop');

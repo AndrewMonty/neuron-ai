@@ -44,28 +44,29 @@ trait HandleResponses
             ->setTools($tools)
             ->respondAsync(
                 $this->resolveChatHistory()->getMessages()
-            )->then(function (Message $response) {
-                $this->notify(
-                    'inference-stop',
-                    new InferenceStop($this->resolveChatHistory()->getLastMessage(), $response)
-                );
+            )->then(
+                function (Message $response) {
+                    $this->notify(
+                        'inference-stop',
+                        new InferenceStop($this->resolveChatHistory()->getLastMessage(), $response)
+                    );
 
-                if ($response instanceof ToolCallMessage) {
-                    $toolCallResult = $this->executeTools($response);
-                    return $this->respondAsync([$response, $toolCallResult]);
-                } else {
-                    $this->notify('message-saving', new MessageSaving($response));
-                    $this->resolveChatHistory()->addMessage($response);
-                    $this->notify('message-saved', new MessageSaved($response));
+                    if ($response instanceof ToolCallMessage) {
+                        $toolCallResult = $this->executeTools($response);
+                        return $this->respondAsync([$response, $toolCallResult]);
+                    } else {
+                        $this->notify('message-saving', new MessageSaving($response));
+                        $this->resolveChatHistory()->addMessage($response);
+                        $this->notify('message-saved', new MessageSaved($response));
+                    }
+
+                    $this->notify('chat-stop');
+                    return $response;
+                },
+                function (\Throwable $exception) {
+                    $this->notify('error', new AgentError($exception));
+                    throw new AgentException($exception->getMessage(), (int)$exception->getCode(), $exception);
                 }
-
-                $this->notify('chat-stop');
-                return $response;
-            }
-                // , function (\Throwable $exception) {
-                // $this->notify('error', new AgentError($exception));
-                // throw new AgentException($exception->getMessage(), (int)$exception->getCode(), $exception);
-                // }
             );
     }
 }

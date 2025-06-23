@@ -53,15 +53,15 @@ trait HandleResponsesStream
 
             switch ($event['type']) {
                 case 'response.web_search_call.searching':
-                    yield \json_encode([
-                        'status' => 'Searching the web...'
-                    ]);
+                    yield ['status' => 'web_search_call.searching'];
+                    break;
+
+                case 'response.web_search_call.completed':
+                    yield ['status' => 'web_search_call.completed'];
                     break;
 
                 case 'response.queued':
-                    yield \json_encode([
-                        'status' => 'Working...'
-                    ]);
+                    yield ['status' => 'queued'];
                     break;
 
                 case 'response.function_call_arguments.done':
